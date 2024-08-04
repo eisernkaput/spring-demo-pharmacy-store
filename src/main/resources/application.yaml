@@ -1,0 +1,14 @@
+server:
+  port: 8080
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    password: ${DB_PASSWORD}
+    username: postgres
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/demo_pharmacy_store_db
+warehouse:
+  openapi:
+    url: http://localhost:8080
