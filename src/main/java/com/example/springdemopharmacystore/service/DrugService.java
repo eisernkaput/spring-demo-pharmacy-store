@@ -4,5 +4,5 @@ import com.example.springdemopharmacystore.model.DrugAddInput;
 
 public interface DrugService {
 
-    void addDrug(DrugAddInput input);
+    void addDrugToWarehouse(DrugAddInput input);
 }

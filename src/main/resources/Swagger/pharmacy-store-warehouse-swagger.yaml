@@ -1,0 +1,237 @@
+openapi: 3.0.3
+info:
+  title: Drug store warehouse API
+  version: v1
+  contact:
+    name: creator
+    email: sheoogorath@gmail.com
+servers:
+  - url: http://localhost:8080
+    description: local dev server
+paths:
+  /v1/drug/add_drug_to_warehouse:
+    post:
+      tags:
+        - drugStoreWarehouse
+      summary: Adding drug to warehouse
+      description: Добавляет лекарство в список лекарств, если его там не было. Помещает единицу лекарства на склад
+      operationId: addDrugToWarehouse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddDrugRequestDto'
+        required: true
+      responses:
+        '200':
+          description: Лекарство помещено на склад
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddDrugResponseDto'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Серверная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+                
+  /v1/drug/get_drug_from_warehouse:
+    post:
+      tags:
+        - drugStoreWarehouse
+      summary: Getting drug from warehouse
+      description: Берет лекарство со склада, уменьшая количество единиц в наличии
+      operationId: getDrugFromWarehouse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetDrugRequestDto'
+        required: true
+      responses:
+        '200':
+          description: Лекарство взято со склада
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDrugResponseDto'
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+        '500':
+          description: Серверная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDto'
+components:
+  schemas:
+  
+    ErrorResponseDto:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Дата и время ответа
+          format: date-time
+        status:
+          type: integer
+          description: Код состояния
+          format: int32
+        url:
+          type: string
+          description: URL запроса
+        message:
+          type: string
+          description: Описание ошибки
+          
+          
+    AddDrugRequestDto:
+      type: object
+      required:
+        - shipment_num
+        - expiration_date
+        - warehouse_id
+        - emploee_id
+      properties:
+        drug_info:
+          $ref: '#/components/schemas/drugDto'
+        shipment_num:
+          type: string
+          description: Номер партии
+        expiration_date:
+          type: string
+          description: Дата окончания срока действия
+          format: date
+        warehouse_id:
+          type: string
+          description: ИД склада
+        emploee_id:
+          type: string
+          description: ИД сотрудника
+          
+    AddDrugResponseDto:
+      type: object
+      properties:
+        shelving_num:
+          type: string
+          description: Номер шкафа на складе
+      description: Указание на номер шкафа, куда помещено лекарство.
+      
+      
+    GetDrugRequestDto:
+      type: object
+      required:
+        - drug_id
+        - num_of_packages
+        - warehouse_id
+        - emploee_id
+      properties:
+        drug_id:
+          type: string
+          description: ИД лекарства
+        num_of_packages:
+          type: integer
+          description: Количество упаковок
+          format: int64
+        warehouse_id:
+          type: string
+          description: ИД склада
+        emploee_id:
+          type: string
+          description: ИД сотрудника
+          
+    GetDrugResponseDto:
+      type: object
+      required:
+        - message
+      properties:
+        drug_info:
+          $ref: '#/components/schemas/drugDto'
+        num_of_packages_in_stock:
+          type: integer
+          description: Количество упаковок оставшихся в наличии
+          format: int64
+        message:
+          type: string
+          description: Cообщение о наличии или отсутствии лекарства на складе.
+      description: Количество оставшихся упаковок или сообщение об отсутствии.
+      
+      
+    drugDto:
+      type: object
+      required:
+        - name
+        - commercial_name
+        - type
+        - purpose
+        - manufacturer
+        - require_refrigeration
+        - package_size
+      properties:        
+        name:
+          type: string
+          description: Наименование лекарства
+        commercial_name:
+          type: string
+          description: Коммерческое наименование лекарства
+        type:
+          type: string
+          enum:
+            - "liquid"
+            - "solid"
+            - "soft"
+            - "aerosol"
+            - "other"
+          description: Тип лекарства
+        purpose:
+          type: string
+          enum:
+            - "antiseptics"
+            - "antimicrobial"
+            - "antibiotics"
+            - "analgesics"
+            - "antiallergic"
+            - "antipyretic"
+            - "nootropic"
+            - "contraceptives"
+          description: Назначение лекарства
+        manufacturer:
+          type: string
+          enum:
+            - "Р-Фарм"
+            - "Биокад"
+            - "Генериум"
+            - "Валента Фарм"
+            - "Фармасинтез"
+            - "Канонфарма Продакшн"
+            - "Фармстандарт-Уфавита"
+            - "Озон"
+            - "Вертекс"
+            - "Сотекс"
+          description: Производитель лекарства
+        require_refrigeration:
+          type: string
+          description: Признак необходимости холодильника
+        package_size:
+          type: string
+          description: Размер упаковки (ед.)       
+        in_stock:
+          type: string
+          description: Признак наличия на складе хотя бы одной упаковки
+        last_update_date:
+          type: string
+          description: Дата и время последнего обновления
+          format: date-time
+      description: Информация о лекарстве  
+        

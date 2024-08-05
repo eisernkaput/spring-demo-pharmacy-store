@@ -61,6 +61,10 @@ public class Drug {
     @Column(name = "package_size")
     private Integer packageSize;
 
+    @NotNull(message = "drug in stock refrigeration is null")
+    @Column(name = "in_stock")
+    private Boolean isInStock;
+
     @NotNull(message = "drug last update date is null")
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "last_update_date")

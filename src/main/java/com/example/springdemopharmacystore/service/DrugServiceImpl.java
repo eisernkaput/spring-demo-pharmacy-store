@@ -19,7 +19,7 @@ public class DrugServiceImpl implements DrugService{
 
     @Override
     @Transactional
-    public void addDrug(DrugAddInput input) {
+    public void addDrugToWarehouse(DrugAddInput input) {
         drugRepository.save(drugMapper.toEntity(input));
         drugRepository.findById(drugMapper.toEntity(input).getId());
     }

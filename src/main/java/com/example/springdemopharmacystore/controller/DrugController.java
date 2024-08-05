@@ -12,24 +12,24 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "Drug controller")
 @RestController
-@RequestMapping("/api/v1/drug")
+@RequestMapping("/v1/drug")
 @RequiredArgsConstructor
 public class DrugController {
 
     private final DrugService drugService;
 
-    @PostMapping("/addDrug")
-    public ResponseEntity<HttpStatus> addDrug(@RequestBody DrugAddInput Body) {
+    @PostMapping("/add_drug_to_warehouse")
+    public ResponseEntity<HttpStatus> addDrugToWarehouse(@RequestBody DrugAddInput Body) {
         try {
-            drugService.addDrug(Body);
+            drugService.addDrugToWarehouse(Body);
             return ResponseEntity.status(HttpStatus.OK).build();
             // добавить возврат номера шкафа и адреса склада
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    @GetMapping("/getDrug")
-    public String getDrug() {
+    @GetMapping("/get_drug_from_warehouse")
+    public String getDrugFromWarehouse() {
         try {
             return ResponseEntity.status(HttpStatus.OK).toString();
             // добавить возврат номера шкафа и адреса склада
