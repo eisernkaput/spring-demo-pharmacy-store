@@ -16,8 +16,6 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-@NoArgsConstructor
-@RequiredArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 public class WarehouseStock {
 

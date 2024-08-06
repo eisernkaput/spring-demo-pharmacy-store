@@ -107,6 +107,11 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.6.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -122,6 +127,44 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <output>target/generated-sources</output>
+                            <generatorName>spring</generatorName>
+                            <inputSpec>
+                                ${project.basedir}/src/main/resources/Swagger/pharmacy-store-warehouse-swagger.yaml
+                            </inputSpec>
+                            <apiPackage>com.example.springdemopharmacystore.rest.api</apiPackage>
+                            <modelPackage>com.example.springdemopharmacystore.rest.model</modelPackage>
+                            <typeMappings>
+                                <typeMapping>OffsetDateTime=LocalDateTime</typeMapping>
+                                <typeMapping>Double=java.math.BigDecimal</typeMapping>
+                            </typeMappings>
+                            <importMappings>
+                                <importMapping>java.time.OffsetDateTime=java.time.LocalDateTime</importMapping>
+                            </importMappings>
+                            <configOptions>
+<!--                                <sourceFolder>src/gen/java/main</sourceFolder>-->
+                                <useJakartaEe>true</useJakartaEe>
+                                <dateLibrary>java8</dateLibrary>
+                                <useTags>true</useTags>
+                                <generateApis>false</generateApis>
+                                <interfaceOnly>true</interfaceOnly>
+                                <generateModelDocumentation>false</generateModelDocumentation>
+                                <generateSupportingFiles>false</generateSupportingFiles>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

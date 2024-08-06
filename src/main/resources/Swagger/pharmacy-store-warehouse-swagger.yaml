@@ -188,37 +188,37 @@ components:
         type:
           type: string
           enum:
-            - "liquid"
-            - "solid"
-            - "soft"
-            - "aerosol"
-            - "other"
+            - 'liquid'
+            - 'solid'
+            - 'soft'
+            - 'aerosol'
+            - 'other'
           description: Тип лекарства
         purpose:
           type: string
           enum:
-            - "antiseptics"
-            - "antimicrobial"
-            - "antibiotics"
-            - "analgesics"
-            - "antiallergic"
-            - "antipyretic"
-            - "nootropic"
-            - "contraceptives"
+            - 'antiseptics'
+            - 'antimicrobial'
+            - 'antibiotics'
+            - 'analgesics'
+            - 'antiallergic'
+            - 'antipyretic'
+            - 'nootropic'
+            - 'contraceptives'
           description: Назначение лекарства
         manufacturer:
           type: string
           enum:
-            - "Р-Фарм"
-            - "Биокад"
-            - "Генериум"
-            - "Валента Фарм"
-            - "Фармасинтез"
-            - "Канонфарма Продакшн"
-            - "Фармстандарт-Уфавита"
-            - "Озон"
-            - "Вертекс"
-            - "Сотекс"
+            - 'R-pharm'
+            - 'Biocad'
+            - 'Generium'
+            - 'Valenta pharm'
+            - 'Pharmasynthez'
+            - 'Canonpharna'
+            - 'Pharmstandart-ufavita'
+            - 'Ozon'
+            - 'Vertex'
+            - 'Sotex'
           description: Производитель лекарства
         require_refrigeration:
           type: string
