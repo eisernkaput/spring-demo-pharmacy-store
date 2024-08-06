@@ -123,6 +123,9 @@ components:
     AddDrugResponseDto:
       type: object
       properties:
+        message:
+          type: string
+          description: Сообщение
         shelving_num:
           type: string
           description: Номер шкафа на складе

@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -45,7 +46,7 @@ public class Shelving {
 
     @NotNull(message = "shelving expiration date is null")
     @Column(name = "expiration_date")
-    private LocalDateTime expirationDate;
+    private LocalDate expirationDate;
 
     @NotNull(message = "shelving last update date is null")
     @LastModifiedDate

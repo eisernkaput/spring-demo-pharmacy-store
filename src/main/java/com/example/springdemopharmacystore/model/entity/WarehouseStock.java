@@ -31,6 +31,10 @@ public class WarehouseStock {
     @JoinColumn(name = "shelving_id", nullable = false)
     private Shelving shelving;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private Warehouse warehouse;
+
     @NotNull(message = "warehouseStock shelving num is null")
     @Column(name = "shelving_num")
     private String shelvingNum;
@@ -43,9 +47,9 @@ public class WarehouseStock {
     @Column(name = "total_stock_capacity")
     private Integer totalStockCapacity;
 
-    @NotNull(message = "warehouseStock used stock capacity is null")
-    @Column(name = "used_stock_capacity")
-    private Integer usedStockCapacity;
+    @NotNull(message = "warehouseStock available stock capacity is null")
+    @Column(name = "available_stock_capacity")
+    private Integer availableStockCapacity;
 
     @NotNull(message = "warehouseStock last update date is null")
     @LastModifiedDate
