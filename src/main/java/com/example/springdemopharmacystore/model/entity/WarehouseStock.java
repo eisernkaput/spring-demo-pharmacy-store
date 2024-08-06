@@ -1,9 +1,11 @@
-package com.example.springdemopharmacystore.entity;
+package com.example.springdemopharmacystore.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -12,22 +14,47 @@ import java.util.Objects;
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "shelving")
+@Table(name = "warehouse_stock")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
-public class Shelving {
+public class WarehouseStock {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = SEQUENCE, generator = "shelving_sequence")
-    @SequenceGenerator(name = "shelving_sequence", sequenceName = "shelving_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = SEQUENCE, generator = "w_stock_sequence")
+    @SequenceGenerator(name = "w_stock_sequence", sequenceName = "w_stock_sequence", allocationSize = 1)
     private Long id;
 
-    @NotNull(message = "shelving last update date is null")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "shelving_id", nullable = false)
+    private Shelving shelving;
+
+    @NotNull(message = "warehouseStock shelving num is null")
+    @Column(name = "shelving_num")
+    private String shelvingNum;
+
+    @NotNull(message = "warehouseStock is refrigerator is null")
+    @Column(name = "is_refrigerator")
+    private Boolean isRefrigerator;
+
+    @NotNull(message = "warehouseStock total stock capacity is null")
+    @Column(name = "total_stock_capacity")
+    private Integer totalStockCapacity;
+
+    @NotNull(message = "warehouseStock used stock capacity is null")
+    @Column(name = "used_stock_capacity")
+    private Integer usedStockCapacity;
+
+    @NotNull(message = "warehouseStock last update date is null")
+    @LastModifiedDate
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
+
+    @CreatedDate
+    @Column(name = "create_date")
+    private LocalDateTime createDate;
 
     @Override
     public final boolean equals(Object o) {
@@ -40,7 +67,7 @@ public class Shelving {
                 ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Shelving that = (Shelving) o;
+        WarehouseStock that = (WarehouseStock) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 

@@ -1,6 +1,6 @@
 package com.example.springdemopharmacystore.repository;
 
-import com.example.springdemopharmacystore.entity.Drug;
+import com.example.springdemopharmacystore.model.entity.Drug;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

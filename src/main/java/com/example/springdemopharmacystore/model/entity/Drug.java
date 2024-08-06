@@ -1,12 +1,13 @@
-package com.example.springdemopharmacystore.entity;
+package com.example.springdemopharmacystore.model.entity;
 
-import com.example.springdemopharmacystore.dictionaries.DrugPurpose;
-import com.example.springdemopharmacystore.dictionaries.DrugType;
-import com.example.springdemopharmacystore.dictionaries.Manufacturer;
+import com.example.springdemopharmacystore.model.dictionaries.DrugPurpose;
+import com.example.springdemopharmacystore.model.dictionaries.DrugType;
+import com.example.springdemopharmacystore.model.dictionaries.Manufacturer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -65,6 +66,7 @@ public class Drug {
 
     @NotNull(message = "drug last update date is null")
     @Temporal(TemporalType.TIMESTAMP)
+    @LastModifiedDate
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 
