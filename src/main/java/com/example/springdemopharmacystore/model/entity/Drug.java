@@ -58,7 +58,7 @@ public class Drug {
 
     @NotNull(message = "drug package size is null")
     @Column(name = "package_size")
-    private Integer packageSize;
+    private Long packageSize;
 
     @NotNull(message = "drug in stock refrigeration is null")
     @Column(name = "in_stock")

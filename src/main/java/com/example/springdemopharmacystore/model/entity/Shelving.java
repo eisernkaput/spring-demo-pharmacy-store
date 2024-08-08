@@ -32,17 +32,21 @@ public class Shelving {
     @JoinColumn(name = "drug_id", nullable = false)
     private Drug drug;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "warehouse_stock_id", nullable = false)
+    private WarehouseStock warehouseStock;
+
     @NotNull(message = "shelving shipment num is null")
     @Column(name = "shipment_num")
     private String shipmentNum;
 
     @NotNull(message = "shelving package counter is null")
     @Column(name = "package_counter")
-    private Integer packageCounter;
+    private Long packageCounter;
 
     @NotNull(message = "shelving shipment date is null")
     @Column(name = "shipment_date")
-    private LocalDateTime shipmentDate;
+    private LocalDate shipmentDate;
 
     @NotNull(message = "shelving expiration date is null")
     @Column(name = "expiration_date")

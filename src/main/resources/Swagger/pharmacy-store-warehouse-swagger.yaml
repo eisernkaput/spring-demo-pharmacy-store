@@ -161,6 +161,9 @@ components:
       properties:
         drug_info:
           $ref: '#/components/schemas/drugDto'
+        shelving_num:
+          type: string
+          description: Номер шкафа на складе
         num_of_packages_in_stock:
           type: integer
           description: Количество упаковок оставшихся в наличии

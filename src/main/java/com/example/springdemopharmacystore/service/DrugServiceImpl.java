@@ -7,17 +7,15 @@ import com.example.springdemopharmacystore.model.entity.Drug;
 import com.example.springdemopharmacystore.model.entity.Shelving;
 import com.example.springdemopharmacystore.mapper.DrugMapper;
 import com.example.springdemopharmacystore.model.entity.WarehouseStock;
-import com.example.springdemopharmacystore.repository.DrugRepository;
-import com.example.springdemopharmacystore.repository.ShelvingRepository;
-import com.example.springdemopharmacystore.repository.WarehouseStockRepository;
+import com.example.springdemopharmacystore.repository.*;
 import com.example.springdemopharmacystore.rest.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
+import java.time.LocalDate;
+import java.util.List;
 import static com.example.springdemopharmacystore.util.Utils.*;
 
 @Service
@@ -31,11 +29,6 @@ public class DrugServiceImpl implements DrugService {
 
     private final DrugMapper drugMapper;
 
-    //- поместить лекарство на склад
-//            (параметры : лекарство, номер партии, дата окончания срока действия, ид склада, ид сотрудника)
-//            (пишется в таблицу лекарств, если такого еще нет. выбирается первый подходящий по типу шкаф
-//            , где есть место = + в потрач вместимость шкафа в складу, новая запись в этот шкаф, новая запись в лекарство)
-//            = возвращает номер шкафа
     @Override
     @Transactional
     public AddDrugResponseDto addDrugToWarehouse(AddDrugRequestDto requestBody) {
@@ -43,26 +36,35 @@ public class DrugServiceImpl implements DrugService {
         try {
             Drug inputDrug = drugEntityCreate(requestBody.getDrugInfo());
             drugRepository.save(inputDrug);
-            String warehouseId = requestBody.getWarehouseId();
+
+            Long warehouseId = Long.valueOf(requestBody.getWarehouseId());
             WarehouseStock availableStock = warehouseStockRepository.findAvailableStock(
-                    Long.valueOf(warehouseId), inputDrug.getRequireRefrigeration(), inputDrug.getPackageSize());
+                    warehouseId, inputDrug.getRequireRefrigeration(), inputDrug.getPackageSize());
             if (availableStock == null) {
                 log.warn("[addDrugToWarehouse] no available capacity in warehouse {}", warehouseId);
                 responseDto.setMessage(String.format("На складе ИД:%s нет места", warehouseId));
                 return responseDto;
             }
+            String shipmentNum = requestBody.getShipmentNum();
+            LocalDate expirationDate = requestBody.getExpirationDate();
 
-            Shelving shelving = availableStock.getShelving();
-            Integer packageCounterAfterAdd = shelving.getPackageCounter() + inputDrug.getPackageSize();
-            shelving.setDrug(inputDrug);
-            shelving.setShipmentNum(requestBody.getShipmentNum());
-            shelving.setPackageCounter(packageCounterAfterAdd);
-            shelving.setShipmentDate(LocalDateTime.now());
-            shelving.setExpirationDate(requestBody.getExpirationDate());
-            shelvingRepository.save(shelving);
+            Shelving shelvingToAdd = shelvingRepository
+                    .findByDrugIdAndStock(inputDrug, availableStock.getId()).stream()
+                    .filter(shelving -> shelving.getShipmentNum().equals(shipmentNum))
+                    .filter(shelving -> shelving.getShipmentDate().isEqual(LocalDate.now()))
+                    .filter(shelving -> shelving.getExpirationDate().isEqual(expirationDate))
+                    .findFirst().orElseGet(
+                            ()->shelvingEntityCreate(inputDrug, availableStock, shipmentNum, expirationDate)
+                    );
+            Long packageSizeInShelving = shelvingToAdd.getPackageCounter();
+            shelvingToAdd.setPackageCounter(
+                    packageSizeInShelving + inputDrug.getPackageSize()
+            );
+            shelvingRepository.save(shelvingToAdd);
 
-            Integer availableStockAfterAdd = availableStock.getAvailableStockCapacity() - inputDrug.getPackageSize();
-            availableStock.setAvailableStockCapacity(availableStockAfterAdd);
+            availableStock.setAvailableStockCapacity(
+                    availableStock.getAvailableStockCapacity() - inputDrug.getPackageSize()
+            );
             warehouseStockRepository.save(availableStock);
 
             responseDto.setMessage("Лекарство можно поместить в стеллаж с номером:");
@@ -74,12 +76,68 @@ public class DrugServiceImpl implements DrugService {
         return responseDto;
     }
 
+    private Shelving shelvingEntityCreate(Drug inputDrug, WarehouseStock stock, String shipmentNum
+            , LocalDate expirationDate) {
+        Shelving shelving = new Shelving();
+        shelving.setDrug(inputDrug);
+        shelving.setWarehouseStock(stock);
+        shelving.setShipmentNum(shipmentNum);
+        shelving.setShipmentDate(LocalDate.now());
+        shelving.setExpirationDate(expirationDate);
+        shelving.setPackageCounter(0L);
+        return shelving;
+    }
+
     @Override
     @Transactional
     public GetDrugResponseDto getDrugFromWarehouse(GetDrugRequestDto requestBody) {
-
-//        drugRepository.findById(drugMapper.toEntity(input).getId());
         GetDrugResponseDto responseDto = new GetDrugResponseDto();
+        try {
+            Long warehouseId = Long.valueOf(requestBody.getWarehouseId());
+            Long drugIdId = Long.valueOf(requestBody.getDrugId());
+
+            Drug drugInStock = drugRepository.findByIdAndIsInStock(drugIdId)
+                    .orElseThrow(() -> new RuntimeException("Drug with id: \"%s\" was not found".formatted(drugIdId)));
+
+            List<Shelving> shelvingWithDrugOnWarehouseList = shelvingRepository
+                    .findByDrugIdAndWarehouseId(drugInStock, warehouseId).stream()
+                    .filter(shelving -> shelving.getExpirationDate().isAfter(LocalDate.now()))
+                    .filter(shelving -> shelving.getPackageCounter() >= requestBody.getNumOfPackages())
+                    .toList();
+            if (shelvingWithDrugOnWarehouseList.isEmpty()) {
+                log.warn("[getDrugFromWarehouse] no drug: {} in warehouse: {}", drugIdId, warehouseId);
+                responseDto.setMessage(String.format("Нет лекарства с ИД:%s на складе с ИД:%s", drugIdId, warehouseId));
+                return responseDto;
+            }
+            Shelving shelvingWithDrug = shelvingWithDrugOnWarehouseList.getFirst();
+            WarehouseStock stockWithDrug = shelvingWithDrug.getWarehouseStock();
+            String shelvingNum = stockWithDrug.getShelvingNum();
+
+            responseDto.setDrugInfo(drugMapper.toDrugDto(drugInStock));
+            responseDto.setShelvingNum(shelvingNum);
+
+            Long availableStockCapacityAfterGet = stockWithDrug.getAvailableStockCapacity() + requestBody.getNumOfPackages();
+            stockWithDrug.setAvailableStockCapacity(availableStockCapacityAfterGet);
+            warehouseStockRepository.save(stockWithDrug);
+
+            long numOfPackagesAfterGet = shelvingWithDrug.getPackageCounter() - requestBody.getNumOfPackages();
+            if (numOfPackagesAfterGet <= 0L) {
+                shelvingRepository.delete(shelvingWithDrug);
+                numOfPackagesAfterGet = 0L;
+            } else {
+                shelvingWithDrug.setPackageCounter(numOfPackagesAfterGet);
+                shelvingRepository.save(shelvingWithDrug);
+            }
+            responseDto.setNumOfPackagesInStock(numOfPackagesAfterGet);
+            responseDto.setMessage(
+                    String.format("Лекарство \"%s\" можно взять на стеллаже N:%s. Количество оставшихся упаковок: %s"
+                    , drugInStock.getName(), shelvingNum, numOfPackagesAfterGet)
+            );
+
+        } catch (Exception e) {
+            log.error("[getDrugFromWarehouse] exception {}, message {}", e.getClass().getSimpleName(), e.getMessage());
+            throw e;
+        }
         return responseDto;
     }
 
@@ -91,20 +149,7 @@ public class DrugServiceImpl implements DrugService {
         drug.setPurpose(getEnum(drugDto.getPurpose(), DrugPurpose.class));
         drug.setManufacturer(getEnum(drugDto.getManufacturer(), Manufacturer.class));
         drug.setRequireRefrigeration(Boolean.valueOf(drugDto.getRequireRefrigeration()));
-        drug.setPackageSize(Integer.valueOf(drugDto.getPackageSize()));
-        drug.setIsInStock(true);
-        return drug;
-    }
-
-    private Drug warehouseStockCreate(DrugDto drugDto) {
-        Drug drug = new Drug();
-        drug.setName(drugDto.getName());
-        drug.setCommercialName(drugDto.getCommercialName());
-        drug.setType(getEnum(drugDto.getType(), DrugType.class));
-        drug.setPurpose(getEnum(drugDto.getPurpose(), DrugPurpose.class));
-        drug.setManufacturer(getEnum(drugDto.getManufacturer(), Manufacturer.class));
-        drug.setRequireRefrigeration(Boolean.valueOf(drugDto.getRequireRefrigeration()));
-        drug.setPackageSize(Integer.valueOf(drugDto.getPackageSize()));
+        drug.setPackageSize(Long.valueOf(drugDto.getPackageSize()));
         drug.setIsInStock(true);
         return drug;
     }

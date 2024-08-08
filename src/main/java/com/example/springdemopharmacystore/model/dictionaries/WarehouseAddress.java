@@ -1,6 +1,5 @@
-package com.example.springdemopharmacystore.model.entity;
+package com.example.springdemopharmacystore.model.dictionaries;
 
-import com.example.springdemopharmacystore.model.dictionaries.WarehouseAddress;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -13,32 +12,32 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.Set;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "warehouse")
+@Table(name = "warehouse_address")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
-public class Warehouse {
+public class WarehouseAddress {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = SEQUENCE, generator = "warehouse_sequence")
-    @SequenceGenerator(name = "warehouse_sequence", sequenceName = "warehouse_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = SEQUENCE, generator = "w_address_sequence")
+    @SequenceGenerator(name = "w_address_sequence", sequenceName = "w_address_sequence", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "warehouse_address_id", nullable = false)
-    private WarehouseAddress warehouseAddress;
+    @NotNull(message = "warehouse address value is null")
+    @Column(name = "address")
+    private String address;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "warehouse")
-    private Set<WarehouseStock> warehouseStocks;
+    @NotNull(message = "warehouse address coordinates is null")
+    @Column(name = "coordinates")
+    private String coordinates;
 
-    @NotNull(message = "warehouse last update date is null")
+    @NotNull(message = "warehouse address last update date is null")
     @LastModifiedDate
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
@@ -58,7 +57,7 @@ public class Warehouse {
                 ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Warehouse that = (Warehouse) o;
+        WarehouseAddress that = (WarehouseAddress) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 

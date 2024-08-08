@@ -9,7 +9,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
@@ -27,9 +29,8 @@ public class WarehouseStock {
     @SequenceGenerator(name = "w_stock_sequence", sequenceName = "w_stock_sequence", allocationSize = 1)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shelving_id", nullable = false)
-    private Shelving shelving;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "warehouseStock")
+    private Set<Shelving> shelvings = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "warehouse_id", nullable = false)
@@ -45,11 +46,11 @@ public class WarehouseStock {
 
     @NotNull(message = "warehouseStock total stock capacity is null")
     @Column(name = "total_stock_capacity")
-    private Integer totalStockCapacity;
+    private Long totalStockCapacity;
 
     @NotNull(message = "warehouseStock available stock capacity is null")
     @Column(name = "available_stock_capacity")
-    private Integer availableStockCapacity;
+    private Long availableStockCapacity;
 
     @NotNull(message = "warehouseStock last update date is null")
     @LastModifiedDate
