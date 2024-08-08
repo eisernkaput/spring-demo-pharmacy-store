@@ -1,5 +1,6 @@
 package com.example.springdemopharmacystore.service;
 
+import com.example.springdemopharmacystore.Exception.DataNotFoundException;
 import com.example.springdemopharmacystore.model.dictionaries.DrugPurpose;
 import com.example.springdemopharmacystore.model.dictionaries.DrugType;
 import com.example.springdemopharmacystore.model.dictionaries.Manufacturer;
@@ -76,18 +77,6 @@ public class DrugServiceImpl implements DrugService {
         return responseDto;
     }
 
-    private Shelving shelvingEntityCreate(Drug inputDrug, WarehouseStock stock, String shipmentNum
-            , LocalDate expirationDate) {
-        Shelving shelving = new Shelving();
-        shelving.setDrug(inputDrug);
-        shelving.setWarehouseStock(stock);
-        shelving.setShipmentNum(shipmentNum);
-        shelving.setShipmentDate(LocalDate.now());
-        shelving.setExpirationDate(expirationDate);
-        shelving.setPackageCounter(0L);
-        return shelving;
-    }
-
     @Override
     @Transactional
     public GetDrugResponseDto getDrugFromWarehouse(GetDrugRequestDto requestBody) {
@@ -97,7 +86,7 @@ public class DrugServiceImpl implements DrugService {
             Long drugIdId = Long.valueOf(requestBody.getDrugId());
 
             Drug drugInStock = drugRepository.findByIdAndIsInStock(drugIdId)
-                    .orElseThrow(() -> new RuntimeException("Drug with id: \"%s\" was not found".formatted(drugIdId)));
+                    .orElseThrow(() -> new DataNotFoundException("Drug with id: \"%s\" not found".formatted(drugIdId)));
 
             List<Shelving> shelvingWithDrugOnWarehouseList = shelvingRepository
                     .findByDrugIdAndWarehouseId(drugInStock, warehouseId).stream()
@@ -152,5 +141,17 @@ public class DrugServiceImpl implements DrugService {
         drug.setPackageSize(Long.valueOf(drugDto.getPackageSize()));
         drug.setIsInStock(true);
         return drug;
+    }
+
+    private Shelving shelvingEntityCreate(Drug inputDrug, WarehouseStock stock, String shipmentNum
+            , LocalDate expirationDate) {
+        Shelving shelving = new Shelving();
+        shelving.setDrug(inputDrug);
+        shelving.setWarehouseStock(stock);
+        shelving.setShipmentNum(shipmentNum);
+        shelving.setShipmentDate(LocalDate.now());
+        shelving.setExpirationDate(expirationDate);
+        shelving.setPackageCounter(0L);
+        return shelving;
     }
 }
