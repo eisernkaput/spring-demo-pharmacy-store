@@ -18,9 +18,11 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @Entity
 @Table(name = "drug")
 @EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
 @ToString(onlyExplicitlyIncluded = true)
+@Builder
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Drug {
 
     @Id

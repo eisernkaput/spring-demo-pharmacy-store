@@ -1,4 +1,4 @@
-package com.example.springdemopharmacystore.Exception;
+package com.example.springdemopharmacystore.exception;
 
 public class DataNotFoundException extends RuntimeException {
     public DataNotFoundException(String message) {

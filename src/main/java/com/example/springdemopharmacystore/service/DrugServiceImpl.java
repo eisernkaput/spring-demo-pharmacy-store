@@ -1,6 +1,6 @@
 package com.example.springdemopharmacystore.service;
 
-import com.example.springdemopharmacystore.Exception.DataNotFoundException;
+import com.example.springdemopharmacystore.exception.DataNotFoundException;
 import com.example.springdemopharmacystore.model.dictionaries.DrugPurpose;
 import com.example.springdemopharmacystore.model.dictionaries.DrugType;
 import com.example.springdemopharmacystore.model.dictionaries.Manufacturer;
@@ -50,7 +50,7 @@ public class DrugServiceImpl implements DrugService {
             LocalDate expirationDate = requestBody.getExpirationDate();
 
             Shelving shelvingToAdd = shelvingRepository
-                    .findByDrugIdAndStock(inputDrug, availableStock.getId()).stream()
+                    .findByDrugIdAndStock(inputDrug, availableStock).stream()
                     .filter(shelving -> shelving.getShipmentNum().equals(shipmentNum))
                     .filter(shelving -> shelving.getShipmentDate().isEqual(LocalDate.now()))
                     .filter(shelving -> shelving.getExpirationDate().isEqual(expirationDate))
@@ -85,7 +85,7 @@ public class DrugServiceImpl implements DrugService {
             Long warehouseId = Long.valueOf(requestBody.getWarehouseId());
             Long drugIdId = Long.valueOf(requestBody.getDrugId());
 
-            Drug drugInStock = drugRepository.findByIdAndIsInStock(drugIdId)
+            Drug drugInStock = drugRepository.findByIdAndIsInStock(drugIdId, true)
                     .orElseThrow(() -> new DataNotFoundException("Drug with id: \"%s\" not found".formatted(drugIdId)));
 
             List<Shelving> shelvingWithDrugOnWarehouseList = shelvingRepository
@@ -131,27 +131,27 @@ public class DrugServiceImpl implements DrugService {
     }
 
     private Drug drugEntityCreate(DrugDto drugDto) {
-        Drug drug = new Drug();
-        drug.setName(drugDto.getName());
-        drug.setCommercialName(drugDto.getCommercialName());
-        drug.setType(getEnum(drugDto.getType(), DrugType.class));
-        drug.setPurpose(getEnum(drugDto.getPurpose(), DrugPurpose.class));
-        drug.setManufacturer(getEnum(drugDto.getManufacturer(), Manufacturer.class));
-        drug.setRequireRefrigeration(Boolean.valueOf(drugDto.getRequireRefrigeration()));
-        drug.setPackageSize(Long.valueOf(drugDto.getPackageSize()));
-        drug.setIsInStock(true);
-        return drug;
+        return Drug.builder()
+                .name(drugDto.getName())
+                .commercialName(drugDto.getCommercialName())
+                .type(getEnum(drugDto.getType(), DrugType.class))
+                .purpose(getEnum(drugDto.getPurpose(), DrugPurpose.class))
+                .manufacturer(getEnum(drugDto.getManufacturer(), Manufacturer.class))
+                .requireRefrigeration(Boolean.valueOf(drugDto.getRequireRefrigeration()))
+                .packageSize(Long.valueOf(drugDto.getPackageSize()))
+                .isInStock(true)
+                .build();
     }
 
     private Shelving shelvingEntityCreate(Drug inputDrug, WarehouseStock stock, String shipmentNum
             , LocalDate expirationDate) {
-        Shelving shelving = new Shelving();
-        shelving.setDrug(inputDrug);
-        shelving.setWarehouseStock(stock);
-        shelving.setShipmentNum(shipmentNum);
-        shelving.setShipmentDate(LocalDate.now());
-        shelving.setExpirationDate(expirationDate);
-        shelving.setPackageCounter(0L);
-        return shelving;
+        return Shelving.builder()
+                .drug(inputDrug)
+                .warehouseStock(stock)
+                .shipmentNum(shipmentNum)
+                .shipmentDate(LocalDate.now())
+                .expirationDate(expirationDate)
+                .packageCounter(0L)
+                .build();
     }
 }

@@ -235,9 +235,5 @@ components:
         in_stock:
           type: string
           description: Признак наличия на складе хотя бы одной упаковки
-        last_update_date:
-          type: string
-          description: Дата и время последнего обновления
-          format: date-time
       description: Информация о лекарстве  
         

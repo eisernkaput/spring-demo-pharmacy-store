@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface DrugRepository extends JpaRepository<Drug, Long> {
 
-    Optional <Drug> findByIdAndIsInStock(@NonNull Long id);
+    Optional <Drug> findByIdAndIsInStock(@NonNull Long id, boolean isInStock);
 }

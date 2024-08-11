@@ -19,6 +19,9 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 public class Shelving {
 

@@ -1,4 +1,4 @@
-package com.example.springdemopharmacystore.Exception;
+package com.example.springdemopharmacystore.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -9,14 +9,14 @@ import org.springframework.web.context.request.WebRequest;
 
 @Slf4j
 @RestControllerAdvice
-public class exceptionHandlerController {
+public class ExceptionHandlerController {
 
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<String> handleDataNotFoundException(DataNotFoundException e, WebRequest request) {
         String message = e.getMessage();
         log.error(message);
         request.getDescription(false);
-        return new ResponseEntity<>(message + "\n" +request.getDescription(false)
+        return new ResponseEntity<>(message + "\n" + request.getDescription(false)
                 , HttpStatus.NOT_FOUND);
     }
 
@@ -24,7 +24,7 @@ public class exceptionHandlerController {
     public ResponseEntity<String> exceptionHandler(Exception e, WebRequest request) {
         String message = e.getMessage();
         log.error(message);
-        return new ResponseEntity<>(message + "\n" +request.getDescription(false)
+        return new ResponseEntity<>(message + "\n" + request.getDescription(false)
                 , HttpStatus.I_AM_A_TEAPOT);
     }
 }
