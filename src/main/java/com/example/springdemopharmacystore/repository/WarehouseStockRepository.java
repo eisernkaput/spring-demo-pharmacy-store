@@ -8,8 +8,12 @@ import java.util.List;
 
 public interface WarehouseStockRepository extends JpaRepository<WarehouseStock, Long> {
 
-    @Query("SELECT ws FROM WarehouseStock ws JOIN Warehouse w WHERE w.id = :warehouseId AND ws.isRefrigerator = :isRefrigerator" +
-            " AND ws.availableStockCapacity >= :packageSize ORDER BY ws.availableStockCapacity LIMIT 1")
+    @Query("SELECT ws FROM WarehouseStock ws" +
+            " JOIN ws.warehouse w" +
+            " WHERE w.id = :warehouseId" +
+            " AND ws.isRefrigerator = :isRefrigerator" +
+            " AND ws.availableStockCapacity >= :packageSize" +
+            " ORDER BY ws.availableStockCapacity LIMIT 1")
     WarehouseStock findAvailableStock(Long warehouseId, Boolean isRefrigerator, Long packageSize);
 
     List<WarehouseStock> findByWarehouseId(Long warehouseId);

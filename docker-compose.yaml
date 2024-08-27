@@ -1,0 +1,19 @@
+version: '1.0'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+      PGDATA: /data/postgres
+    volumes:
+      - ./docker:/data/postgres
+    ports:
+      - "5443:5443"
+    networks:
+      - postgres
+    restart: unless-stopped
+networks:
+  postgres:
